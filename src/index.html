@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4f46e5">
+    <title>Income Data Entry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      input, textarea, button, select {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+      }
+
+      body {
+        background-color: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+        box-sizing: border-box;
+        padding-top: max(16px, env(safe-area-inset-top));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+        text-align: left;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .form-group input[type="date"],
+      .form-group input[type="number"],
+      .form-group input[type="text"],
+      .form-group input[type="password"] {
+        width: 100%;
+        padding: 14px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-color: #fff;
+      }
+
+      .form-group input[type="number"] {
+        text-align: right;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      }
+
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+
+      .btn {
+        padding: 14px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.1s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        font-size: 16px;
+        min-height: 44px;
+        min-width: 44px;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .btn:active {
+        transform: scale(0.98);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        background-color: #4f46e5;
+        color: white;
+        box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        width: 100%;
+      }
+
+      .btn-primary:not(:disabled):active {
+        background-color: #4338ca;
+      }
+
+      .btn-secondary {
+        background-color: #e0e7ff;
+        color: #4f46e5;
+        border: 1px solid #c7d2fe;
+        width: 100%;
+      }
+
+      .btn-secondary:not(:disabled):active {
+        background-color: #c7d2fe;
+      }
+
+      .message-box {
+        padding: 14px;
+        border-radius: 8px;
+        margin: 16px 0;
+        text-align: center;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .message-box.success {
+        background-color: #d1fae5;
+        color: #065f46;
+        border: 1px solid #34d399;
+      }
+
+      .message-box.error {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #ef4444;
+      }
+
+      .message-box.info {
+        background-color: #dbeafe;
+        color: #0c4a6e;
+        border: 1px solid #93c5fd;
+      }
+
+      .loading-spinner {
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top: 3px solid #fff;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+        margin-left: 8px;
+        display: none;
+      }
+
+      .btn.loading .loading-spinner {
+        display: inline-block;
+      }
+
+      .btn.loading span {
+        visibility: hidden;
+        position: absolute;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 20px 0;
+        color: #333;
+      }
+
+      h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 20px 0 16px 0;
+        color: #333;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        z-index: 1000;
+        padding: 0;
+      }
+
+      .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 15px 15px 0 0;
+        box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 500px;
+        box-sizing: border-box;
+        animation: slideUp 0.3s ease;
+      }
+
+      @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+
+      .modal-content h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        color: #333;
+      }
+
+      .modal-content p {
+        margin: 0 0 20px 0;
+        color: #555;
+        font-size: 14px;
+      }
+
+      .modal-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .modal-actions .btn {
+        margin-top: 0;
+        width: 100%;
+      }
+
+      .my-report-section {
+        margin-top: 24px;
+        border-top: 1px solid #e0e0e0;
+        padding-top: 16px;
+      }
+
+      .my-report-section h3 {
+        font-size: 16px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .form-row .form-group {
+        margin-bottom: 0;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 16px 0;
+      }
+
+      .summary-item {
+        background-color: #f9fafb;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .summary-item-label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+
+      .summary-item-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1f2937;
+      }
+
+      .my-report-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        font-size: 13px;
+      }
+
+      .my-report-table th,
+      .my-report-table td {
+        border: 1px solid #e5e7eb;
+        padding: 8px;
+        text-align: right;
+      }
+
+      .my-report-table th {
+        background-color: #f3f4f6;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .my-report-table td:first-child,
+      .my-report-table th:first-child {
+        text-align: left;
+      }
+
+      .my-report-table tbody tr:nth-child(even) {
+        background-color: #f9fafb;
+      }
+
+      .no-data-message {
+        text-align: center;
+        color: #888;
+        padding: 24px 12px;
+        font-size: 14px;
+      }
+
+      .scroll-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .scroll-container table {
+        min-width: 100%;
+      }
+
+      .view-report-btn {
+        width: 100%;
+      }
+
+      .date-inputs-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .form-section {
+        margin-bottom: 20px;
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 12px;
+          padding-top: max(12px, env(safe-area-inset-top));
+          padding-bottom: max(12px, env(safe-area-inset-bottom));
+        }
+
+        h2 {
+          font-size: 20px;
+          margin-bottom: 16px;
+        }
+
+        .form-group label {
+          font-size: 13px;
+        }
+
+        .form-group input {
+          padding: 12px 10px;
+          font-size: 16px;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+
+        .btn {
+          padding: 12px 16px;
+          font-size: 15px;
+          min-height: 44px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Login Form -->
+      <div id="loginSection">
+        <h2 style="margin-top: 40px; text-align: center;">Welcome</h2>
+        <div style="text-align: center; color: #666; margin-bottom: 32px; font-size: 14px;">
+          Income Data Entry System
+        </div>
+        <form id="loginForm" class="space-y-4">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter username" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 24px;">
+            <span>Login</span>
+            <div class="loading-spinner"></div>
+          </button>
+        </form>
+      </div>
+
+      <!-- Data Entry Form -->
+      <div id="dataEntrySection" class="hidden">
+        <h2 id="locationTitle" style="text-align: center; margin-top: 16px;"></h2>
+        
+        <form id="dataEntryForm" class="form-section">
+          <div class="form-group">
+            <label for="date">Date *</label>
+            <input type="date" id="date" name="date" required>
+          </div>
+
+          <div class="form-group">
+            <label for="totalCollection">Total Collection *</label>
+            <input type="number" id="totalCollection" name="totalCollection" placeholder="0.00" step="0.01" min="0" required inputmode="decimal">
+          </div>
+
+          <div class="form-group">
+            <label for="onlineCollection">Online Collection *</label>
+            <input type="number" id="onlineCollection" name="onlineCollection" placeholder="0.00" step="0.01" min="0" required inputmode="decimal">
+          </div>
+
+          <div class="form-group">
+            <label for="remittanceToBank">Remittance to Bank *</label>
+            <input type="number" id="remittanceToBank" name="remittanceToBank" placeholder="0.00" step="0.01" min="0" required inputmode="decimal">
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="margin-top: 24px; margin-bottom: 12px;">
+            <span>Submit Data</span>
+            <div class="loading-spinner"></div>
+          </button>
+        </form>
+
+        <!-- My Report Section -->
+        <div id="myReportSection" class="my-report-section">
+          <h3>📊 My Data Report</h3>
+          
+          <div class="date-inputs-row">
+            <div class="form-group">
+              <label for="myReportFromDate">From Date</label>
+              <input type="date" id="myReportFromDate" required>
+            </div>
+            <div class="form-group">
+              <label for="myReportToDate">To Date</label>
+              <input type="date" id="myReportToDate" required>
+            </div>
+          </div>
+
+          <button id="viewMyReportBtn" class="btn btn-secondary view-report-btn" style="margin-bottom: 16px;">
+            <span>View Report</span>
+            <div class="loading-spinner"></div>
+          </button>
+
+          <div id="myReportContainer">
+            <p class="no-data-message">Select a date range and click 'View Report'</p>
+          </div>
+
+          <div id="myDayByDayContainer"></div>
+        </div>
+
+        <button id="logoutButton" class="btn btn-secondary" style="margin-top: 24px; margin-bottom: 12px;">Logout</button>
+      </div>
+
+      <div id="messageBox" class="message-box hidden"></div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3>✓ Confirm Submission</h3>
+        <p>Are you sure you want to submit this data?</p>
+        <div class="modal-actions">
+          <button id="confirmSubmitBtn" class="btn btn-primary">Confirm</button>
+          <button id="cancelSubmitBtn" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const loginSection = document.getElementById('loginSection');
+      const dataEntrySection = document.getElementById('dataEntrySection');
+      const loginForm = document.getElementById('loginForm');
+      const dataEntryForm = document.getElementById('dataEntryForm');
+      const logoutButton = document.getElementById('logoutButton');
+      const locationTitle = document.getElementById('locationTitle');
+      const messageBox = document.getElementById('messageBox');
+      const confirmationModal = document.getElementById('confirmationModal');
+      const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
+      const cancelSubmitBtn = document.getElementById('cancelSubmitBtn');
+      const myReportSection = document.getElementById('myReportSection');
+      const myReportFromDateInput = document.getElementById('myReportFromDate');
+      const myReportToDateInput = document.getElementById('myReportToDate');
+      const viewMyReportBtn = document.getElementById('viewMyReportBtn');
+      const myReportContainer = document.getElementById('myReportContainer');
+
+      let currentUserLocation = null;
+
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const todayFormatted = `${yyyy}-${mm}-${dd}`;
+
+      document.getElementById('date').value = todayFormatted;
+      document.getElementById('date').setAttribute('max', todayFormatted);
+
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const firstDayYyyy = firstDayOfMonth.getFullYear();
+      const firstDayMm = String(firstDayOfMonth.getMonth() + 1).padStart(2, '0');
+      const firstDayDd = String(firstDayOfMonth.getDate()).padStart(2, '0');
+
+      myReportFromDateInput.value = `${firstDayYyyy}-${firstDayMm}-${firstDayDd}`;
+      myReportToDateInput.value = todayFormatted;
+      myReportFromDateInput.setAttribute('max', todayFormatted);
+      myReportToDateInput.setAttribute('max', todayFormatted);
+
+      function showLoginForm() {
+        loginSection.classList.remove('hidden');
+        dataEntrySection.classList.add('hidden');
+        hideMessage();
+        loginForm.reset();
+      }
+
+      function showDataEntryForm() {
+        loginSection.classList.add('hidden');
+        dataEntrySection.classList.remove('hidden');
+        hideMessage();
+        dataEntryForm.reset();
+        document.getElementById('date').value = todayFormatted;
+        myReportContainer.innerHTML = '<p class="no-data-message">Select a date range and click \'View Report\'</p>';
+      }
+
+      document.addEventListener('DOMContentLoaded', showLoginForm);
+
+      loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const loginButton = loginForm.querySelector('button[type="submit"]');
+        loginButton.classList.add('loading');
+        loginButton.disabled = true;
+        hideMessage();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+          await google.script.run
+            .withSuccessHandler((result) => {
+              loginButton.classList.remove('loading');
+              loginButton.disabled = false;
+
+              if (result.success) {
+                currentUserLocation = result.locationName;
+                locationTitle.textContent = `${currentUserLocation}`;
+                showDataEntryForm();
+                showMessage('Login successful! 👋', 'success');
+              } else {
+                showMessage(result.message || 'Login failed', 'error');
+              }
+            })
+            .withFailureHandler((error) => {
+              loginButton.classList.remove('loading');
+              loginButton.disabled = false;
+              showMessage('Login error. Please try again.', 'error');
+            })
+            .handleLogin(username, password);
+        } catch (error) {
+          loginButton.classList.remove('loading');
+          loginButton.disabled = false;
+          showMessage('Unexpected error. Please try again.', 'error');
+        }
+      });
+
+      dataEntryForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const date = document.getElementById('date').value;
+        const totalCollection = parseFloat(document.getElementById('totalCollection').value);
+        const onlineCollection = parseFloat(document.getElementById('onlineCollection').value);
+
+        const selectedDate = new Date(date);
+        const todayEndOfDay = new Date();
+        todayEndOfDay.setHours(23, 59, 59, 999);
+
+        if (!date || isNaN(selectedDate.getTime())) {
+          showMessage('Please enter a valid date.', 'error');
+          return;
+        }
+        if (selectedDate.getTime() > todayEndOfDay.getTime()) {
+          showMessage('Date cannot be in the future.', 'error');
+          return;
+        }
+        if (isNaN(totalCollection) || totalCollection < 0) {
+          showMessage('Total Collection must be a valid number.', 'error');
+          return;
+        }
+        if (isNaN(onlineCollection) || onlineCollection < 0) {
+          showMessage('Online Collection must be a valid number.', 'error');
+          return;
+        }
+        if (onlineCollection > totalCollection) {
+          showMessage('Online Collection cannot exceed Total Collection.', 'error');
+          return;
+        }
+
+        confirmationModal.classList.remove('hidden');
+      });
+
+      confirmSubmitBtn.addEventListener('click', () => {
+        confirmationModal.classList.add('hidden');
+        submitActualData();
+      });
+
+      cancelSubmitBtn.addEventListener('click', () => {
+        confirmationModal.classList.add('hidden');
+        showMessage('Submission cancelled.', 'info');
+      });
+
+      async function submitActualData() {
+        const submitButton = dataEntryForm.querySelector('button[type="submit"]');
+        submitButton.classList.add('loading');
+        submitButton.disabled = true;
+        hideMessage();
+
+        const formData = {
+          date: document.getElementById('date').value,
+          totalCollection: parseFloat(document.getElementById('totalCollection').value),
+          onlineCollection: parseFloat(document.getElementById('onlineCollection').value),
+          remittanceToBank: parseFloat(document.getElementById('remittanceToBank').value),
+          location: currentUserLocation
+        };
+
+        try {
+          await google.script.run
+            .withSuccessHandler((response) => {
+              submitButton.classList.remove('loading');
+              submitButton.disabled = false;
+
+              if (response.success) {
+                showMessage('✓ Data submitted successfully!', 'success');
+                document.getElementById('totalCollection').value = '';
+                document.getElementById('onlineCollection').value = '';
+                document.getElementById('remittanceToBank').value = '';
+                document.getElementById('date').value = todayFormatted;
+                viewMyReportBtn.click();
+              } else {
+                showMessage(response.message, 'error');
+              }
+            })
+            .withFailureHandler((error) => {
+              submitButton.classList.remove('loading');
+              submitButton.disabled = false;
+              showMessage('Submission error. Please try again.', 'error');
+            })
+            .processFormData(formData);
+        } catch (error) {
+          submitButton.classList.remove('loading');
+          submitButton.disabled = false;
+          showMessage('Unexpected error during submission.', 'error');
+        }
+      }
+
+      logoutButton.addEventListener('click', () => {
+        currentUserLocation = null;
+        showMessage('Logged out successfully.', 'success');
+        showLoginForm();
+      });
+
+      viewMyReportBtn.addEventListener('click', viewMyReport);
+
+      async function viewMyReport() {
+        viewMyReportBtn.classList.add('loading');
+        viewMyReportBtn.disabled = true;
+        myReportContainer.innerHTML = '<p class="no-data-message">Loading...</p>';
+        hideMessage();
+
+        const fromDateStr = myReportFromDateInput.value;
+        const toDateStr = myReportToDateInput.value;
+
+        if (!fromDateStr || !toDateStr) {
+          showMessage('Please select both dates.', 'error');
+          viewMyReportBtn.classList.remove('loading');
+          viewMyReportBtn.disabled = false;
+          return;
+        }
+
+        const fromDate = new Date(fromDateStr);
+        const toDate = new Date(toDateStr);
+        const todayEndOfDay = new Date();
+        todayEndOfDay.setHours(23, 59, 59, 999);
+
+        if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+          showMessage('Invalid date format.', 'error');
+          viewMyReportBtn.classList.remove('loading');
+          viewMyReportBtn.disabled = false;
+          return;
+        }
+        if (fromDate.getTime() > toDate.getTime()) {
+          showMessage('From Date cannot be after To Date.', 'error');
+          viewMyReportBtn.classList.remove('loading');
+          viewMyReportBtn.disabled = false;
+          return;
+        }
+        if (fromDate.getTime() > todayEndOfDay.getTime() || toDate.getTime() > todayEndOfDay.getTime()) {
+          showMessage('Dates cannot be in the future.', 'error');
+          viewMyReportBtn.classList.remove('loading');
+          viewMyReportBtn.disabled = false;
+          return;
+        }
+
+        if (!currentUserLocation) {
+          showMessage('Error: Not logged in.', 'error');
+          viewMyReportBtn.classList.remove('loading');
+          viewMyReportBtn.disabled = false;
+          return;
+        }
+
+        try {
+          await google.script.run
+            .withSuccessHandler(renderMyReport)
+            .withFailureHandler(() => {
+              viewMyReportBtn.classList.remove('loading');
+              viewMyReportBtn.disabled = false;
+              myReportContainer.innerHTML = '<p class="no-data-message">Failed to load report.</p>';
+              showMessage('Error loading report.', 'error');
+            })
+            .getMyAggregatedData(currentUserLocation, fromDateStr, toDateStr);
+        } catch (error) {
+          viewMyReportBtn.classList.remove('loading');
+          viewMyReportBtn.disabled = false;
+          showMessage('Error loading report.', 'error');
+        }
+      }
+
+      function renderMyReport(reportData) {
+        viewMyReportBtn.classList.remove('loading');
+        viewMyReportBtn.disabled = false;
+
+        if (!reportData) {
+          myReportContainer.innerHTML = '<p class="no-data-message">No data found for this period.</p>';
+          document.getElementById('myDayByDayContainer').innerHTML = '';
+          showMessage('No data for selected period.', 'info');
+          return;
+        }
+
+        let html = `
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-item-label">Total Collection</div>
+              <div class="summary-item-value">₹${formatNumber(reportData.totalCollection)}</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-item-label">Online</div>
+              <div class="summary-item-value">₹${formatNumber(reportData.totalOnlineCollection)}</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-item-label">Cash</div>
+              <div class="summary-item-value">₹${formatNumber(reportData.totalCashCollection)}</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-item-label">Remittance</div>
+              <div class="summary-item-value">₹${formatNumber(reportData.totalRemittanceToBank)}</div>
+            </div>
+          </div>
+        `;
+        myReportContainer.innerHTML = html;
+
+        const fromDateStr = myReportFromDateInput.value;
+        const toDateStr = myReportToDateInput.value;
+        google.script.run
+          .withSuccessHandler(renderMyDayByDayTable)
+          .withFailureHandler(() => {
+            document.getElementById('myDayByDayContainer').innerHTML = "<p class='no-data-message'>Failed to load daily data.</p>";
+          })
+          .getMyDayByDayData(currentUserLocation, fromDateStr, toDateStr);
+
+        showMessage('Report loaded! ✓', 'success');
+      }
+
+      function renderMyDayByDayTable(dayRows) {
+        const container = document.getElementById('myDayByDayContainer');
+        if (!dayRows || !dayRows.length) {
+          container.innerHTML = "<p class='no-data-message'>No daily entries for this period.</p>";
+          return;
+        }
+        let html = `
+          <h3 style="margin-top: 24px;">Daily Details</h3>
+          <div class="scroll-container">
+            <table class="my-report-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Total</th>
+                  <th>Online</th>
+                  <th>Cash</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${dayRows.map(row =>
+                  `<tr>
+                    <td>${row.date}</td>
+                    <td>₹${formatNumber(row.totalCollection)}</td>
+                    <td>₹${formatNumber(row.onlineCollection)}</td>
+                    <td>₹${formatNumber(row.cashCollection)}</td>
+                  </tr>`
+                ).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        container.innerHTML = html;
+      }
+
+      function showMessage(msg, type) {
+        messageBox.textContent = msg;
+        messageBox.className = `message-box ${type}`;
+        messageBox.classList.remove('hidden');
+        setTimeout(() => {
+          if (!messageBox.classList.contains('hidden')) {
+            messageBox.classList.add('hidden');
+          }
+        }, 5000);
+      }
+
+      function hideMessage() {
+        messageBox.classList.add('hidden');
+        messageBox.textContent = '';
+      }
+
+      function formatNumber(num) {
+        if (typeof num !== 'number' || isNaN(num)) return '0.00';
+        return num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+    </script>
+  </body>
+</html>
