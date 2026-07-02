@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#4f46e5">
+    <title>Admin Income Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      input, button, select {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+        box-sizing: border-box;
+        padding-top: max(16px, env(safe-area-inset-top));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+      }
+
+      h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 20px 0;
+        color: #333;
+        text-align: center;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+        text-align: left;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 14px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
+        appearance: none;
+        background-color: #fff;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      }
+
+      .btn {
+        padding: 14px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        font-size: 16px;
+        min-height: 44px;
+        min-width: 44px;
+        -webkit-tap-highlight-color: transparent;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        background-color: #4f46e5;
+        color: white;
+        box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+      }
+
+      .btn-secondary {
+        background-color: #e0e7ff;
+        color: #4f46e5;
+        border: 1px solid #c7d2fe;
+      }
+
+      .message-box {
+        padding: 14px;
+        border-radius: 8px;
+        margin: 16px 0;
+        text-align: center;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .message-box.success {
+        background-color: #d1fae5;
+        color: #065f46;
+        border: 1px solid #34d399;
+      }
+
+      .message-box.error {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #ef4444;
+      }
+
+      .message-box.info {
+        background-color: #dbeafe;
+        color: #0c4a6e;
+        border: 1px solid #93c5fd;
+      }
+
+      .loading-spinner {
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top: 3px solid #fff;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+        margin-left: 8px;
+        display: none;
+      }
+
+      .btn.loading .loading-spinner {
+        display: inline-block;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .date-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .date-row .form-group {
+        margin-bottom: 0;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-bottom: 2px solid #e0e0e0;
+        margin: 20px 0 16px 0;
+      }
+
+      .tab-button {
+        padding: 10px 16px;
+        background-color: #f8f8f8;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        font-weight: 600;
+        color: #555;
+        cursor: pointer;
+        white-space: nowrap;
+        font-size: 14px;
+      }
+
+      .tab-button.active {
+        background-color: #4f46e5;
+        color: white;
+        border-color: #4f46e5;
+      }
+
+      .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        font-size: 13px;
+      }
+
+      .report-table th, .report-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: right;
+      }
+
+      .report-table th {
+        background-color: #f2f2f2;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .report-table td:first-child,
+      .report-table th:first-child {
+        text-align: left;
+      }
+
+      .report-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      .overall-summary {
+        background-color: #f0f9ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        padding: 16px;
+        margin: 16px 0;
+      }
+
+      .overall-summary h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e40af;
+        margin: 0 0 12px 0;
+      }
+
+      .overall-summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #dbeafe;
+        font-size: 14px;
+      }
+
+      .overall-summary-item:last-child {
+        border-bottom: none;
+      }
+
+      .overall-summary-label {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .overall-summary-value {
+        font-weight: 700;
+        color: #1c4a78;
+      }
+
+      .button-row {
+        display: flex;
+        gap: 12px;
+        margin: 16px 0;
+      }
+
+      .button-row .btn {
+        flex: 1;
+      }
+
+      .scroll-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 12px;
+        }
+
+        h2 {
+          font-size: 20px;
+          margin-bottom: 16px;
+        }
+
+        .form-group input {
+          padding: 12px 10px;
+          font-size: 16px;
+        }
+
+        .btn {
+          padding: 12px 16px;
+          font-size: 15px;
+        }
+
+        .date-row {
+          gap: 10px;
+        }
+
+        .tab-button {
+          padding: 8px 12px;
+          font-size: 13px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Admin Login Form -->
+      <div id="adminLoginSection">
+        <h2 style="margin-top: 40px;">Admin Report</h2>
+        <div style="text-align: center; color: #666; margin-bottom: 32px; font-size: 14px;">
+          Consolidated Income Report
+        </div>
+        <form id="adminLoginForm" class="space-y-4">
+          <div class="form-group">
+            <label for="adminUsername">Username</label>
+            <input type="text" id="adminUsername" name="adminUsername" placeholder="Enter username" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" name="adminPassword" placeholder="Enter password" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 24px;">
+            <span>Login</span>
+            <div class="loading-spinner"></div>
+          </button>
+        </form>
+      </div>
+
+      <!-- Admin Report Section -->
+      <div id="reportSection" class="hidden">
+        <h2>📊 Consolidated Report</h2>
+
+        <div class="date-row">
+          <div class="form-group">
+            <label for="fromDate">From Date</label>
+            <input type="date" id="fromDate" required>
+          </div>
+          <div class="form-group">
+            <label for="toDate">To Date</label>
+            <input type="date" id="toDate" required>
+          </div>
+        </div>
+
+        <button id="generateReportBtn" class="btn btn-primary" style="margin-bottom: 12px;">
+          <span>Generate Report</span>
+          <div class="loading-spinner"></div>
+        </button>
+
+        <!-- Overall Summary -->
+        <div id="overallSummary" class="overall-summary hidden">
+          <h3>📈 Overall Summary</h3>
+          <div class="overall-summary-item">
+            <span class="overall-summary-label">Total Collection</span>
+            <span class="overall-summary-value" id="overallTotalCollection">₹0.00</span>
+          </div>
+          <div class="overall-summary-item">
+            <span class="overall-summary-label">Online Collection</span>
+            <span class="overall-summary-value" id="overallTotalOnlineCollection">₹0.00</span>
+          </div>
+          <div class="overall-summary-item">
+            <span class="overall-summary-label">Cash Collection</span>
+            <span class="overall-summary-value" id="overallTotalCashCollection">₹0.00</span>
+          </div>
+          <div class="overall-summary-item">
+            <span class="overall-summary-label">Remittance to Bank</span>
+            <span class="overall-summary-value" id="overallTotalRemittanceToBank">₹0.00</span>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button id="downloadReportBtn" class="btn btn-secondary hidden">
+            <span>📥 CSV</span>
+            <div class="loading-spinner"></div>
+          </button>
+          <button id="downloadAdminPdfBtn" class="btn btn-secondary hidden">
+            <span>📄 PDF</span>
+            <div class="loading-spinner"></div>
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div id="reportTabs" class="tabs"></div>
+        <div id="tabContentContainer"></div>
+
+        <button id="adminLogoutButton" class="btn btn-secondary" style="margin-top: 24px;">Logout</button>
+      </div>
+
+      <div id="messageBox" class="message-box hidden"></div>
+    </div>
+
+    <script>
+      const adminLoginSection = document.getElementById('adminLoginSection');
+      const reportSection = document.getElementById('reportSection');
+      const adminLoginForm = document.getElementById('adminLoginForm');
+      const fromDateInput = document.getElementById('fromDate');
+      const toDateInput = document.getElementById('toDate');
+      const generateReportBtn = document.getElementById('generateReportBtn');
+      const reportTabsContainer = document.getElementById('reportTabs');
+      const tabContentContainer = document.getElementById('tabContentContainer');
+      const adminLogoutButton = document.getElementById('adminLogoutButton');
+      const messageBox = document.getElementById('messageBox');
+      const overallSummaryDiv = document.getElementById('overallSummary');
+      const downloadReportBtn = document.getElementById('downloadReportBtn');
+      const downloadAdminPdfBtn = document.getElementById('downloadAdminPdfBtn');
+
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const firstDayYyyy = firstDayOfMonth.getFullYear();
+      const firstDayMm = String(firstDayOfMonth.getMonth() + 1).padStart(2, '0');
+      const firstDayDd = String(firstDayOfMonth.getDate()).padStart(2, '0');
+
+      fromDateInput.value = `${firstDayYyyy}-${firstDayMm}-${firstDayDd}`;
+      toDateInput.value = `${yyyy}-${mm}-${dd}`;
+
+      const todayFormatted = `${yyyy}-${mm}-${dd}`;
+      fromDateInput.setAttribute('max', todayFormatted);
+      toDateInput.setAttribute('max', todayFormatted);
+
+      let currentReportData = null;
+
+      function showAdminLoginForm() {
+        adminLoginSection.classList.remove('hidden');
+        reportSection.classList.add('hidden');
+        hideMessage();
+        adminLoginForm.reset();
+      }
+
+      function showReportSection() {
+        adminLoginSection.classList.add('hidden');
+        reportSection.classList.remove('hidden');
+        hideMessage();
+      }
+
+      document.addEventListener('DOMContentLoaded', showAdminLoginForm);
+
+      adminLoginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const loginButton = adminLoginForm.querySelector('button[type="submit"]');
+        loginButton.classList.add('loading');
+        loginButton.disabled = true;
+        hideMessage();
+
+        const username = document.getElementById('adminUsername').value;
+        const password = document.getElementById('adminPassword').value;
+
+        try {
+          await google.script.run
+            .withSuccessHandler((result) => {
+              loginButton.classList.remove('loading');
+              loginButton.disabled = false;
+
+              if (result.success) {
+                showReportSection();
+                showMessage('Admin login successful! 👋', 'success');
+                generateReport();
+              } else {
+                showMessage(result.message || 'Login failed', 'error');
+              }
+            })
+            .withFailureHandler((error) => {
+              loginButton.classList.remove('loading');
+              loginButton.disabled = false;
+              showMessage('Login error. Please try again.', 'error');
+            })
+            .handleAdminLogin(username, password);
+        } catch (error) {
+          loginButton.classList.remove('loading');
+          loginButton.disabled = false;
+          showMessage('Unexpected error. Please try again.', 'error');
+        }
+      });
+
+      generateReportBtn.addEventListener('click', generateReport);
+
+      async function generateReport() {
+        hideMessage();
+        overallSummaryDiv.classList.add('hidden');
+        downloadReportBtn.classList.add('hidden');
+        downloadAdminPdfBtn.classList.add('hidden');
+
+        const fromDateStr = fromDateInput.value;
+        const toDateStr = toDateInput.value;
+
+        if (!fromDateStr || !toDateStr) {
+          showMessage('Please select both dates.', 'error');
+          return;
+        }
+
+        const fromDate = new Date(fromDateStr);
+        const toDate = new Date(toDateStr);
+        const todayEndOfDay = new Date();
+        todayEndOfDay.setHours(23, 59, 59, 999);
+
+        if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+          showMessage('Invalid date format.', 'error');
+          return;
+        }
+        if (fromDate.getTime() > toDate.getTime()) {
+          showMessage('From Date cannot be after To Date.', 'error');
+          return;
+        }
+        if (fromDate.getTime() > todayEndOfDay.getTime() || toDate.getTime() > todayEndOfDay.getTime()) {
+          showMessage('Dates cannot be in the future.', 'error');
+          return;
+        }
+
+        generateReportBtn.classList.add('loading');
+        generateReportBtn.disabled = true;
+
+        try {
+          await google.script.run
+            .withSuccessHandler(renderReport)
+            .withFailureHandler(onReportFailure)
+            .getAggregatedReportData(fromDateStr, toDateStr);
+        } catch (error) {
+          onReportFailure(error);
+        }
+      }
+
+      function renderReport(reportData) {
+        generateReportBtn.classList.remove('loading');
+        generateReportBtn.disabled = false;
+
+        if (!reportData || reportData.length === 0) {
+          showMessage('No data found for selected dates.', 'info');
+          reportTabsContainer.innerHTML = '';
+          tabContentContainer.innerHTML = '';
+          overallSummaryDiv.classList.add('hidden');
+          return;
+        }
+
+        currentReportData = reportData;
+
+        let overallTotalCollection = 0;
+        let overallTotalOnlineCollection = 0;
+        let overallTotalCashCollection = 0;
+        let overallTotalRemittanceToBank = 0;
+
+        reportData.forEach(locationData => {
+          overallTotalCollection += locationData.totalCollection;
+          overallTotalOnlineCollection += locationData.totalOnlineCollection;
+          overallTotalCashCollection += locationData.totalCashCollection;
+          overallTotalRemittanceToBank += locationData.totalRemittanceToBank;
+        });
+
+        document.getElementById('overallTotalCollection').textContent = `₹${formatNumber(overallTotalCollection)}`;
+        document.getElementById('overallTotalOnlineCollection').textContent = `₹${formatNumber(overallTotalOnlineCollection)}`;
+        document.getElementById('overallTotalCashCollection').textContent = `₹${formatNumber(overallTotalCashCollection)}`;
+        document.getElementById('overallTotalRemittanceToBank').textContent = `₹${formatNumber(overallTotalRemittanceToBank)}`;
+        overallSummaryDiv.classList.remove('hidden');
+
+        downloadReportBtn.classList.remove('hidden');
+        downloadAdminPdfBtn.classList.remove('hidden');
+
+        reportTabsContainer.innerHTML = '';
+        tabContentContainer.innerHTML = '';
+
+        let firstTabId = '';
+
+        reportData.forEach((locationData, index) => {
+          const locationId = locationData.locationName.replace(/[^a-zA-Z0-9]/g, '');
+          const tabButton = document.createElement('button');
+          tabButton.className = 'tab-button';
+          tabButton.textContent = locationData.locationName;
+          tabButton.setAttribute('data-target', locationId);
+          tabButton.addEventListener('click', () => switchTab(locationId));
+          reportTabsContainer.appendChild(tabButton);
+
+          const tabContent = document.createElement('div');
+          tabContent.id = `tabContent_${locationId}`;
+          tabContent.className = 'hidden';
+          tabContentContainer.appendChild(tabContent);
+
+          renderTable(locationData, tabContent);
+
+          if (index === 0) firstTabId = locationId;
+        });
+
+        if (firstTabId) switchTab(firstTabId);
+        showMessage('Report generated! ✓', 'success');
+      }
+
+      function renderTable(data, containerElement) {
+        if (!data) {
+          containerElement.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">No data</p>';
+          return;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'report-table';
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Total Collection</td><td>₹${formatNumber(data.totalCollection)}</td></tr>
+            <tr><td>Online Collection</td><td>₹${formatNumber(data.totalOnlineCollection)}</td></tr>
+            <tr><td>Cash Collection</td><td>₹${formatNumber(data.totalCashCollection)}</td></tr>
+            <tr><td>Remittance to Bank</td><td>₹${formatNumber(data.totalRemittanceToBank)}</td></tr>
+          </tbody>
+        `;
+        containerElement.appendChild(table);
+      }
+
+      function switchTab(targetId) {
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('#tabContentContainer > div').forEach(content => content.classList.add('hidden'));
+
+        document.querySelector(`.tab-button[data-target="${targetId}"]`).classList.add('active');
+        document.getElementById(`tabContent_${targetId}`).classList.remove('hidden');
+      }
+
+      function onReportFailure(error) {
+        generateReportBtn.classList.remove('loading');
+        generateReportBtn.disabled = false;
+        showMessage('Error generating report. Please try again.', 'error');
+      }
+
+      adminLogoutButton.addEventListener('click', () => {
+        showAdminLoginForm();
+        showMessage('Logged out successfully.', 'success');
+        reportTabsContainer.innerHTML = '';
+        tabContentContainer.innerHTML = '';
+        overallSummaryDiv.classList.add('hidden');
+        downloadReportBtn.classList.add('hidden');
+        downloadAdminPdfBtn.classList.add('hidden');
+      });
+
+      downloadReportBtn.addEventListener('click', async () => {
+        downloadReportBtn.classList.add('loading');
+        downloadReportBtn.disabled = true;
+        hideMessage();
+
+        const fromDateStr = fromDateInput.value;
+        const toDateStr = toDateInput.value;
+
+        try {
+          await google.script.run
+            .withSuccessHandler((csv) => {
+              downloadReportBtn.classList.remove('loading');
+              downloadReportBtn.disabled = false;
+              if (csv) {
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Income_Report_${fromDateStr}_to_${toDateStr}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showMessage('CSV downloaded! ✓', 'success');
+              } else {
+                showMessage('No data to download.', 'error');
+              }
+            })
+            .withFailureHandler((error) => {
+              downloadReportBtn.classList.remove('loading');
+              downloadReportBtn.disabled = false;
+              showMessage('Download failed. Try again.', 'error');
+            })
+            .getReportCsvData(fromDateStr, toDateStr);
+        } catch (error) {
+          downloadReportBtn.classList.remove('loading');
+          downloadReportBtn.disabled = false;
+          showMessage('Download error.', 'error');
+        }
+      });
+
+      downloadAdminPdfBtn.addEventListener('click', async () => {
+        downloadAdminPdfBtn.classList.add('loading');
+        downloadAdminPdfBtn.disabled = true;
+        hideMessage();
+
+        const fromDateStr = fromDateInput.value;
+        const toDateStr = toDateInput.value;
+        showMessage('Generating PDF...', 'info');
+
+        try {
+          await google.script.run
+            .withSuccessHandler(function(base64) {
+              downloadAdminPdfBtn.classList.remove('loading');
+              downloadAdminPdfBtn.disabled = false;
+              const byteCharacters = atob(base64);
+              const byteNumbers = new Array(byteCharacters.length);
+              for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+              }
+              const byteArray = new Uint8Array(byteNumbers);
+              const blob = new Blob([byteArray], {type: 'application/pdf'});
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `Income_Admin_Report_${fromDateStr}_to_${toDateStr}.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+              showMessage('PDF downloaded! ✓', 'success');
+            })
+            .withFailureHandler(function(err) {
+              downloadAdminPdfBtn.classList.remove('loading');
+              downloadAdminPdfBtn.disabled = false;
+              showMessage('PDF generation failed.', 'error');
+            })
+            .generateAdminPdfReportBase64(fromDateStr, toDateStr);
+        } catch (error) {
+          downloadAdminPdfBtn.classList.remove('loading');
+          downloadAdminPdfBtn.disabled = false;
+          showMessage('PDF error.', 'error');
+        }
+      });
+
+      function showMessage(msg, type) {
+        messageBox.textContent = msg;
+        messageBox.className = `message-box ${type}`;
+        messageBox.classList.remove('hidden');
+        setTimeout(() => {
+          if (!messageBox.classList.contains('hidden')) {
+            messageBox.classList.add('hidden');
+          }
+        }, 5000);
+      }
+
+      function hideMessage() {
+        messageBox.classList.add('hidden');
+        messageBox.textContent = '';
+      }
+
+      function formatNumber(num) {
+        if (typeof num !== 'number' || isNaN(num)) return '0.00';
+        return num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+    </script>
+  </body>
+</html>
